@@ -1,30 +1,42 @@
 package services
 
 import (
-	"produtos-api/src/database"
 	"produtos-api/src/models"
+	"produtos-api/src/repositories"
 )
 
-func CreateProduct(product *models.Product) error {
-	return database.DB.Create(product).Error
+type ProductService interface {
+	CreateProduct(product *models.Product) error
+	GetAllProducts() ([]models.Product, error)
+	GetProductByID(id uint) (*models.Product, error)
+	UpdateProduct(product *models.Product) error
+	DeleteProduct(id uint) error
 }
 
-func GetAllProducts() ([]models.Product, error) {
-	var products []models.Product
-	err := database.DB.Find(&products).Error
-	return products, err
+type ProductServiceRepo struct {
+	repository repositories.ProductRepository
 }
 
-func GetProductByID(id uint) (*models.Product, error) {
-	var product models.Product
-	err := database.DB.First(&product, id).Error
-	return &product, err
+func NewProductService(repo repositories.ProductRepository) *ProductServiceRepo {
+	return &ProductServiceRepo{repository: repo}
 }
 
-func UpdateProduct(product *models.Product) error {
-	return database.DB.Save(product).Error
+func (s *ProductServiceRepo) CreateProduct(product *models.Product) error {
+	return s.repository.CreateProduct(product)
 }
 
-func DeleteProduct(id uint) error {
-	return database.DB.Delete(&models.Product{}, id).Error
+func (s *ProductServiceRepo) GetAllProducts() ([]models.Product, error) {
+	return s.repository.GetAllProducts()
+}
+
+func (s *ProductServiceRepo) GetProductByID(id uint) (*models.Product, error) {
+	return s.repository.GetProductByID(id)
+}
+
+func (s *ProductServiceRepo) UpdateProduct(product *models.Product) error {
+	return s.repository.UpdateProduct(product)
+}
+
+func (s *ProductServiceRepo) DeleteProduct(id uint) error {
+	return s.repository.DeleteProduct(id)
 }
