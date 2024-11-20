@@ -53,18 +53,17 @@ func TestServiceCreateProduct(t *testing.T) {
 	productService := NewProductService(mockRepo)
 
 	product := &models.Product{Name: "Test Product", Price: 100.0}
-	mockRepo.On("CreateProduct", product).Return(nil) // Mock da criação do produto
+	mockRepo.On("CreateProduct", product).Return(nil)
 
 	err := productService.CreateProduct(product)
 	assert.NoError(t, err)
-	mockRepo.AssertExpectations(t) // Verifica se o método foi chamado corretamente
+	mockRepo.AssertExpectations(t)
 }
 
 func TestServiceGetAllProducts(t *testing.T) {
 	mockRepo := new(MockProductRepository)
 	productService := NewProductService(mockRepo)
 
-	// Mock da resposta do repositório
 	mockRepo.On("GetAllProducts").Return([]models.Product{
 		{ID: 1, Name: "Product 1", Price: 100.0},
 		{ID: 2, Name: "Product 2", Price: 150.0},
@@ -72,7 +71,7 @@ func TestServiceGetAllProducts(t *testing.T) {
 
 	products, err := productService.GetAllProducts()
 	assert.NoError(t, err)
-	assert.Len(t, products, 2) // Espera que a lista tenha 2 produtos
+	assert.Len(t, products, 2)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -81,11 +80,11 @@ func TestServiceGetProductByID(t *testing.T) {
 	productService := NewProductService(mockRepo)
 
 	product := &models.Product{ID: 1, Name: "Product 1", Price: 100.0}
-	mockRepo.On("GetProductByID", uint(1)).Return(product, nil) // Mock da busca pelo ID
+	mockRepo.On("GetProductByID", uint(1)).Return(product, nil)
 
 	result, err := productService.GetProductByID(1)
 	assert.NoError(t, err)
-	assert.Equal(t, uint(1), result.ID) // Verifica se o ID do produto é o esperado
+	assert.Equal(t, uint(1), result.ID)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -93,12 +92,13 @@ func TestServiceGetProductByName(t *testing.T) {
 	mockRepo := new(MockProductRepository)
 	productService := NewProductService(mockRepo)
 
-	product := &models.Product{ID: 1, Name: "Product 1", Price: 100.0}
-	mockRepo.On("GetProductByName", "Product 1").Return(product, nil) // Mock da busca pelo nome
+	mockRepo.On("GetProductByName", "Product 1").Return([]models.Product{
+		{ID: 1, Name: "Product 1", Price: 100.0},
+	}, nil)
 
-	result, err := productService.GetProductByName("Product 1")
+	products, err := productService.GetProductByName("Product 1")
 	assert.NoError(t, err)
-	assert.Equal(t, uint(1), result.ID) // Verifica se o ID do produto é o esperado
+	assert.Len(t, products, 1)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -106,10 +106,10 @@ func TestServiceGetProductsCount(t *testing.T) {
 	mockRepo := new(MockProductRepository)
 	productService := NewProductService(mockRepo)
 
-	mockRepo.On("GetProductsCount").Return(int64(2)) // Mock da contagem de produtos
+	mockRepo.On("GetProductsCount").Return(int64(2))
 
 	count := productService.GetProductsCount()
-	assert.Equal(t, int64(2), count) // Verifica se a contagem é a esperada
+	assert.Equal(t, int64(2), count)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -118,7 +118,7 @@ func TestServiceUpdateProduct(t *testing.T) {
 	productService := NewProductService(mockRepo)
 
 	product := &models.Product{ID: 1, Name: "Updated Product", Price: 120.0}
-	mockRepo.On("UpdateProduct", product).Return(nil) // Mock da atualização
+	mockRepo.On("UpdateProduct", product).Return(nil)
 
 	err := productService.UpdateProduct(product)
 	assert.NoError(t, err)
@@ -129,7 +129,7 @@ func TestServiceDeleteProduct(t *testing.T) {
 	mockRepo := new(MockProductRepository)
 	productService := NewProductService(mockRepo)
 
-	mockRepo.On("DeleteProduct", uint(1)).Return(nil) // Mock da exclusão
+	mockRepo.On("DeleteProduct", uint(1)).Return(nil)
 
 	err := productService.DeleteProduct(1)
 	assert.NoError(t, err)

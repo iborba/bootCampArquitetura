@@ -26,9 +26,9 @@ func (m *MockProductService) GetAllProducts() ([]models.Product, error) {
 	return args.Get(0).([]models.Product), args.Error(1)
 }
 
-func (m *MockProductService) GetProductByName(name string) (*models.Product, error) {
+func (m *MockProductService) GetProductByName(name string) ([]models.Product, error) {
 	args := m.Called(name)
-	return args.Get(0).(*models.Product), args.Error(1)
+	return args.Get(0).([]models.Product), args.Error(1)
 }
 
 func (m *MockProductService) GetProductsCount() int64 {
