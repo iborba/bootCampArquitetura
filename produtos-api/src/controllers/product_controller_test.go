@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-// MockProductService is a mock of the ProductService
 type MockProductService struct {
 	mock.Mock
 }
@@ -43,49 +43,39 @@ func (m *MockProductService) DeleteProduct(id uint) error {
 
 func TestCreateProductController(t *testing.T) {
 	mockService := new(MockProductService)
-	controller := NewProductController(mockService) // Inject the mock service into the controller
+	controller := NewProductController(mockService)
 
-	// Prepare test data
 	product := &models.Product{Name: "New Product", Price: 99.99}
 
-	// Mock service behavior
-	mockService.On("CreateProduct", product).Return(nil) // Simulate a successful creation
+	mockService.On("CreateProduct", product).Return(nil)
 
-	// Convert the product to JSON to simulate a POST request body
 	productJSON := `{"name":"New Product","price":99.99}`
 	req := httptest.NewRequest(http.MethodPost, "/products", strings.NewReader(productJSON))
 	req.Header.Set("Content-Type", "application/json")
 
-	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
 
-	// Call the handler function
 	controller.CreateProduct(rr, req)
 
-	// Assert the status code and response body
 	assert.Equal(t, http.StatusCreated, rr.Code)
 	assert.Contains(t, rr.Body.String(), "New Product")
-	mockService.AssertExpectations(t) // Verify the mock was called as expected
+	mockService.AssertExpectations(t)
 }
 
 func TestGetAllProductsController(t *testing.T) {
 	mockService := new(MockProductService)
 	controller := NewProductController(mockService)
 
-	// Mock service behavior
 	mockService.On("GetAllProducts").Return([]models.Product{
 		{ID: 1, Name: "Product 1", Price: 100},
 		{ID: 2, Name: "Product 2", Price: 150},
 	}, nil)
 
-	// Create a GET request to fetch all products
 	req := httptest.NewRequest(http.MethodGet, "/products", nil)
 	rr := httptest.NewRecorder()
 
-	// Call the handler function
 	controller.GetAllProducts(rr, req)
 
-	// Assert the status code and response body
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Contains(t, rr.Body.String(), "Product 1")
 	assert.Contains(t, rr.Body.String(), "Product 2")
@@ -96,22 +86,21 @@ func TestGetProductByIDController(t *testing.T) {
 	mockService := new(MockProductService)
 	controller := NewProductController(mockService)
 
-	// Prepare the product data
 	product := &models.Product{ID: 1, Name: "Product 1", Price: 100}
 
-	// Mock service behavior
 	mockService.On("GetProductByID", uint(1)).Return(product, nil)
 
-	// Create a GET request with the product ID in the URL
+	r := mux.NewRouter()
+	r.HandleFunc("/products/{id:[0-9]+}", controller.GetProductByID).Methods(http.MethodGet)
+
 	req := httptest.NewRequest(http.MethodGet, "/products/1", nil)
 	rr := httptest.NewRecorder()
 
-	// Call the handler function
-	controller.GetProductByID(rr, req)
+	r.ServeHTTP(rr, req)
 
-	// Assert the status code and response body
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Contains(t, rr.Body.String(), "Product 1")
+
 	mockService.AssertExpectations(t)
 }
 
@@ -119,24 +108,22 @@ func TestUpdateProductController(t *testing.T) {
 	mockService := new(MockProductService)
 	controller := NewProductController(mockService)
 
-	// Prepare the product data
 	product := &models.Product{ID: 1, Name: "Updated Product", Price: 120}
 
-	// Mock service behavior
 	mockService.On("UpdateProduct", product).Return(nil)
 
-	// Convert the product to JSON to simulate a PUT request body
+	r := mux.NewRouter()
+	r.HandleFunc("/products/{id:[0-9]+}", controller.UpdateProduct).Methods(http.MethodPut)
+
 	productJSON := `{"id":1,"name":"Updated Product","price":120}`
 	req := httptest.NewRequest(http.MethodPut, "/products/1", strings.NewReader(productJSON))
 	req.Header.Set("Content-Type", "application/json")
 
-	// Create a ResponseRecorder to capture the response
 	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
 
-	// Call the handler function
 	controller.UpdateProduct(rr, req)
 
-	// Assert the status code and response body
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Contains(t, rr.Body.String(), "Updated Product")
 	mockService.AssertExpectations(t)
@@ -146,17 +133,17 @@ func TestDeleteProductController(t *testing.T) {
 	mockService := new(MockProductService)
 	controller := NewProductController(mockService)
 
-	// Mock service behavior
 	mockService.On("DeleteProduct", uint(1)).Return(nil)
 
-	// Create a DELETE request
+	r := mux.NewRouter()
+	r.HandleFunc("/products/{id:[0-9]+}", controller.DeleteProduct).Methods(http.MethodDelete)
+
 	req := httptest.NewRequest(http.MethodDelete, "/products/1", nil)
 	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
 
-	// Call the handler function
 	controller.DeleteProduct(rr, req)
 
-	// Assert the status code and response body
 	assert.Equal(t, http.StatusNoContent, rr.Code)
 	mockService.AssertExpectations(t)
 }
