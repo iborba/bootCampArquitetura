@@ -11,14 +11,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ProductController is a struct that defines the product controller
 type ProductController struct {
 	service services.ProductService
 }
 
+// NewProductController is a function that creates a new product controller
 func NewProductController(service services.ProductService) *ProductController {
 	return &ProductController{service: service}
 }
 
+// CreateProduct Cria um novo produto
+// @Summary Cria um novo produto
+// @Description Cria um novo produto
+// @Tags produtos
+// @Accept json
+// @Produce json
+// @Param product body models.Product true "Product data"
+// @Success 201 {object} models.Product
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /products [post]
 func (pc *ProductController) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
@@ -35,6 +48,17 @@ func (pc *ProductController) CreateProduct(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(product)
 }
 
+// GetAllProducts Retorna todos os produtos
+// @Summary Retorna todos os produtos
+// @Description Retorna todos os produtos
+// @Tags produtos
+// @Accept json
+// @Produce json
+// @Param name query string false "Nome do produto"
+// @Param count query string false "Contagem de produtos"
+// @Success 200 {object} []models.Product
+// @Failure 500 {object} string
+// @Router /products [get]
 func (pc *ProductController) GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	if name != "" {
@@ -66,6 +90,17 @@ func (pc *ProductController) GetAllProducts(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(products)
 }
 
+// GetProductByID Retorna um produto pelo ID
+// @Summary Retorna um produto pelo ID
+// @Description Retorna um produto pelo ID
+// @Tags produtos
+// @Accept json
+// @Produce json
+// @Param id path int true "ID do produto"
+// @Success 200 {object} models.Product
+// @Failure 400 {object} string
+// @Failure 404 {object} string
+// @Router /products/{id} [get]
 func (pc *ProductController) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -82,6 +117,18 @@ func (pc *ProductController) GetProductByID(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(product)
 }
 
+// UpdateProduct Atualiza um produto
+// @Summary Atualiza um produto
+// @Description Atualiza um produto
+// @Tags produtos
+// @Accept json
+// @Produce json
+// @Param id path int true "ID do produto"
+// @Param product body models.Product true "Product data"
+// @Success 200 {object} models.Product
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /products/{id} [put]
 func (pc *ProductController) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -104,6 +151,17 @@ func (pc *ProductController) UpdateProduct(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(product)
 }
 
+// DeleteProduct Deleta um produto
+// @Summary Deleta um produto
+// @Description Deleta um produto
+// @Tags produtos
+// @Accept json
+// @Produce json
+// @Param id path int true "ID do produto"
+// @Success 204
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /products/{id} [delete]
 func (pc *ProductController) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {

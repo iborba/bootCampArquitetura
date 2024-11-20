@@ -17,11 +17,7 @@ func SetupDatabase() (*gorm.DB, error) {
 	// Verifique se estamos em ambiente de testes
 	if isTesting() {
 		// Em ambiente de testes, usamos a base de dados temporária
-		db, err = SetupTestDatabase()
-
-		if err != nil {
-			return nil, fmt.Errorf("erro ao conectar ao banco de dados de teste: %v", err)
-		}
+		db, _ = SetupTestDatabase()
 
 		return db, nil
 	}
@@ -55,9 +51,6 @@ func SetupTestDatabase() (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("erro ao configurar banco de dados de testes: %v", err)
 	}
-
-	// Aqui podemos rodar as migrações, se necessário
-	// db.AutoMigrate(&models.Product{}) // Exemplo de migração
 
 	return db, nil
 }

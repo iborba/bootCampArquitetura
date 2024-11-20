@@ -8,6 +8,10 @@ import (
 	"produtos-api/src/services"
 
 	"github.com/gorilla/mux"
+
+	_ "produtos-api/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func SetupRoutes() *mux.Router {
@@ -31,6 +35,9 @@ func SetupRoutes() *mux.Router {
 	router.HandleFunc("/products", productController.GetAllProducts).Methods("GET")
 	router.HandleFunc("/products/{id}", productController.UpdateProduct).Methods("PUT")
 	router.HandleFunc("/products/{id}", productController.DeleteProduct).Methods("DELETE")
+
+	// Define a rota para a documentação Swagger
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	return router
 }
