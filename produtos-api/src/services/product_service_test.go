@@ -28,6 +28,16 @@ func (m *MockProductRepository) GetProductByID(id uint) (*models.Product, error)
 	return args.Get(0).(*models.Product), args.Error(1)
 }
 
+func (m *MockProductRepository) GetProductByName(name string) ([]models.Product, error) {
+	args := m.Called(name)
+	return args.Get(0).([]models.Product), args.Error(1)
+}
+
+func (m *MockProductRepository) GetProductsCount() int64 {
+	args := m.Called()
+	return args.Get(0).(int64)
+}
+
 func (m *MockProductRepository) UpdateProduct(product *models.Product) error {
 	args := m.Called(product)
 	return args.Error(0)
@@ -76,6 +86,30 @@ func TestServiceGetProductByID(t *testing.T) {
 	result, err := productService.GetProductByID(1)
 	assert.NoError(t, err)
 	assert.Equal(t, uint(1), result.ID) // Verifica se o ID do produto é o esperado
+	mockRepo.AssertExpectations(t)
+}
+
+func TestServiceGetProductByName(t *testing.T) {
+	mockRepo := new(MockProductRepository)
+	productService := NewProductService(mockRepo)
+
+	product := &models.Product{ID: 1, Name: "Product 1", Price: 100.0}
+	mockRepo.On("GetProductByName", "Product 1").Return(product, nil) // Mock da busca pelo nome
+
+	result, err := productService.GetProductByName("Product 1")
+	assert.NoError(t, err)
+	assert.Equal(t, uint(1), result.ID) // Verifica se o ID do produto é o esperado
+	mockRepo.AssertExpectations(t)
+}
+
+func TestServiceGetProductsCount(t *testing.T) {
+	mockRepo := new(MockProductRepository)
+	productService := NewProductService(mockRepo)
+
+	mockRepo.On("GetProductsCount").Return(int64(2)) // Mock da contagem de produtos
+
+	count := productService.GetProductsCount()
+	assert.Equal(t, int64(2), count) // Verifica se a contagem é a esperada
 	mockRepo.AssertExpectations(t)
 }
 

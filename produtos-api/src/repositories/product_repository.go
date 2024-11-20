@@ -11,6 +11,8 @@ type ProductRepository interface {
 	CreateProduct(product *models.Product) error
 	GetAllProducts() ([]models.Product, error)
 	GetProductByID(id uint) (*models.Product, error)
+	GetProductByName(name string) ([]models.Product, error)
+	GetProductsCount() int64
 	UpdateProduct(product *models.Product) error
 	DeleteProduct(id uint) error
 }
@@ -38,6 +40,24 @@ func (repo *ProductRepositoryDB) GetProductByID(id uint) (*models.Product, error
 	var product models.Product
 	err := repo.db.First(&product, id).Error
 	return &product, err
+}
+
+func (repo *ProductRepositoryDB) GetProductByName(name string) ([]models.Product, error) {
+	var products []models.Product
+	err := repo.db.Where("name = ?", name).Find(&products).Error
+
+	return products, err
+}
+
+func (repo *ProductRepositoryDB) GetProductsCount() int64 {
+	var count int64
+	err := repo.db.Model(&models.Product{}).Count(&count).Error
+
+	if err != nil {
+		return 0
+	}
+
+	return count
 }
 
 func (repo *ProductRepositoryDB) UpdateProduct(product *models.Product) error {

@@ -27,8 +27,8 @@ func SetupRoutes() *mux.Router {
 
 	// Definir rotas
 	router.HandleFunc("/products", productController.CreateProduct).Methods("POST")
-	router.HandleFunc("/products", productController.GetAllProducts).Methods("GET")
 	router.HandleFunc("/products/{id}", productController.GetProductByID).Methods("GET")
+	router.HandleFunc("/products", productController.GetAllProducts).Methods("GET")
 	router.HandleFunc("/products/{id}", productController.UpdateProduct).Methods("PUT")
 	router.HandleFunc("/products/{id}", productController.DeleteProduct).Methods("DELETE")
 

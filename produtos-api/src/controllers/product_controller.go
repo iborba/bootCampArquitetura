@@ -36,6 +36,27 @@ func (pc *ProductController) CreateProduct(w http.ResponseWriter, r *http.Reques
 }
 
 func (pc *ProductController) GetAllProducts(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name != "" {
+		products, err := pc.service.GetProductByName(name)
+		if err != nil {
+			http.Error(w, "Failed to retrieve products", http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(products)
+		return
+	}
+
+	count := r.URL.Query().Get("count")
+	if count != "" {
+		count := pc.service.GetProductsCount()
+		response := map[string]int64{"count": count}
+
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
 	products, err := pc.service.GetAllProducts()
 	if err != nil {
 		http.Error(w, "Failed to retrieve products", http.StatusInternalServerError)
